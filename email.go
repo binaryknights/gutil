@@ -61,17 +61,21 @@ func NewMail(From string, To []string, Subject string, Body string) *mail {
 	}
 }
 
-func (m *mail) ParseTemplate(templateFile string, data interface{}) error {
-	t, err := template.ParseFiles(templateFile)
-	if err != nil {
-		return err
-	}
+func (m *mail) ParseTemplate(tmpl *template.Template, data interface{}) error {
 	buf := new(bytes.Buffer)
-	if err = t.Execute(buf, data); err != nil {
+	if err := tmpl.Execute(buf, data); err != nil {
 		return err
 	}
 	m.Body = buf.String()
 	return nil
+}
+
+func (m *mail) ParseTemplateFile(filename string, data interface{}) error {
+	t, err := template.ParseFiles(filename)
+	if err != nil {
+		return err
+	}
+	return m.ParseTemplate(t, data)
 }
 
 func (m *mail) msg() []byte {
